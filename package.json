@@ -1,0 +1,11 @@
+{
+  "name": "ai-toolkit",
+  "version": "1.0.0",
+  "description": "AI-Powered Developer Toolkit - Built with GitHub Copilot CLI & WorkBuddy Agent",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["ai", "toolkit", "copilot", "agent"],
+  "license": "MIT"
+}

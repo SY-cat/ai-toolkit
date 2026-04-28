@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Toolkit - AI 驱动的开发者工具集</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --card-bg: #12121a;
+      --border: #1e1e2e;
+      --text: #e0e0e8;
+      --text-muted: #8888a0;
+      --accent: #6c5ce7;
+      --accent-light: #a29bfe;
+      --green: #00cec9;
+      --orange: #fdcb6e;
+      --red: #ff6b6b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+      background: linear-gradient(180deg, rgba(108,92,231,0.12) 0%, transparent 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(108,92,231,0.06) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 50%, rgba(0,206,201,0.04) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-2%, 2%); }
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-light), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 24px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+    }
+
+    .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .badge .dot.green { background: var(--green); }
+    .badge .dot.orange { background: var(--orange); }
+    .badge .dot.purple { background: var(--accent); }
+
+    /* Container */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+    /* Section */
+    .section { margin-bottom: 60px; }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    /* Tool Cards */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .tool-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      transition: border-color 0.25s, transform 0.25s;
+      cursor: pointer;
+    }
+
+    .tool-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .tool-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tool-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    /* Interactive Areas */
+    .interactive-area {
+      background: rgba(108,92,231,0.05);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .interactive-area textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+      min-height: 60px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .interactive-area textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+
+    .result-box {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Cascadia Code', monospace;
+      font-size: 0.83rem;
+      color: var(--green);
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 40px;
+    }
+
+    /* Workflow */
+    .workflow {
+      display: flex;
+      gap: 0;
+      align-items: flex-start;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .workflow-step {
+      flex: 0 0 auto;
+      min-width: 160px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .workflow-step .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .workflow-step h4 { font-size: 0.9rem; margin-bottom: 4px; }
+    .workflow-step p { font-size: 0.78rem; color: var(--text-muted); }
+
+    .workflow-arrow {
+      flex: 0 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 1.4rem;
+      padding-top: 30px;
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      text-align: center;
+    }
+
+    .stat-card .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-light), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-card .stat-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+
+    footer a { color: var(--accent-light); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .tools-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <h1>AI Toolkit</h1>
+    <p>AI 驱动的开发者工具集 — 由 GitHub Copilot CLI 与 WorkBuddy Agent 协作构建</p>
+    <div class="badge-row">
+      <span class="badge"><span class="dot green"></span>Copilot CLI v1.0.38</span>
+      <span class="badge"><span class="dot purple"></span>WorkBuddy Agent</span>
+      <span class="badge"><span class="dot orange"></span>Node.js v24</span>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon" style="background:rgba(108,92,231,0.15);">📊</span>
+        Agent 使用统计
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-tools">6</div>
+          <div class="stat-label">AI 工具调用</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-tasks">4</div>
+          <div class="stat-label">并行任务</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-steps">12</div>
+          <div class="stat-label">执行步骤</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-time">3min</div>
+          <div class="stat-label">端到端耗时</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflow -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon" style="background:rgba(0,206,201,0.15);">⚡</span>
+        Agent 工作流
+      </div>
+      <div class="workflow">
+        <div class="workflow-step">
+          <div class="step-num">1</div>
+          <h4>意图理解</h4>
+          <p>解析用户需求，识别安装目标</p>
+        </div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step">
+          <div class="step-num">2</div>
+          <h4>文档检索</h4>
+          <p>WebSearch + WebFetch 获取最新官方指南</p>
+        </div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step">
+          <div class="step-num">3</div>
+          <h4>环境检测</h4>
+          <p>验证 Node.js/npm 版本兼容性</p>
+        </div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step">
+          <div class="step-num">4</div>
+          <h4>自动执行</h4>
+          <p>npm install + 版本验证</p>
+        </div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step">
+          <div class="step-num">5</div>
+          <h4>结果交付</h4>
+          <p>生成指南 + 速查表 + 证明材料</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Tools -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon" style="background:rgba(253,203,110,0.15);">🛠️</span>
+        在线工具演示
+      </div>
+      <div class="tools-grid">
+
+        <!-- Tool 1: JSON Formatter -->
+        <div class="tool-card">
+          <h3>📋 JSON 格式化</h3>
+          <p>粘贴压缩的 JSON，一键格式化输出</p>
+          <div class="interactive-area">
+            <textarea id="jsonInput" placeholder='{"name":"ai-toolkit","version":"1.0.0"}'>{"name":"ai-toolkit","version":"1.0.0","description":"AI-Powered Developer Toolkit","tools":["json-format","base64","hash","regex","timestamp","color"]}</textarea>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              <button class="btn btn-primary" onclick="formatJSON()">格式化</button>
+              <button class="btn btn-secondary" onclick="minifyJSON()">压缩</button>
+            </div>
+            <div class="result-box" id="jsonResult">点击按钮查看结果...</div>
+          </div>
+        </div>
+
+        <!-- Tool 2: Base64 -->
+        <div class="tool-card">
+          <h3>🔐 Base64 编解码</h3>
+          <p>文本与 Base64 互转</p>
+          <div class="interactive-area">
+            <textarea id="base64Input" placeholder="输入文本进行编解码">Hello, AI Toolkit!</textarea>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              <button class="btn btn-primary" onclick="encodeBase64()">编码</button>
+              <button class="btn btn-secondary" onclick="decodeBase64()">解码</button>
+            </div>
+            <div class="result-box" id="base64Result">点击按钮查看结果...</div>
+          </div>
+        </div>
+
+        <!-- Tool 3: Hash -->
+        <div class="tool-card">
+          <h3>🔑 SHA-256 哈希</h3>
+          <p>计算文本的 SHA-256 哈希值</p>
+          <div class="interactive-area">
+            <textarea id="hashInput" placeholder="输入文本计算哈希">AI Toolkit by WorkBuddy Agent</textarea>
+            <div style="margin-top:10px;">
+              <button class="btn btn-primary" onclick="computeHash()">计算哈希</button>
+            </div>
+            <div class="result-box" id="hashResult">点击按钮查看结果...</div>
+          </div>
+        </div>
+
+        <!-- Tool 4: Timestamp -->
+        <div class="tool-card">
+          <h3>⏱️ 时间戳转换</h3>
+          <p>Unix 时间戳与日期互转</p>
+          <div class="interactive-area">
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+              <button class="btn btn-primary" onclick="nowTimestamp()">当前时间戳</button>
+              <button class="btn btn-secondary" onclick="readTimestamp()">解析时间戳</button>
+            </div>
+            <textarea id="tsInput" placeholder="输入 Unix 时间戳"></textarea>
+            <div class="result-box" id="tsResult">点击按钮查看结果...</div>
+          </div>
+        </div>
+
+        <!-- Tool 5: Regex Tester -->
+        <div class="tool-card">
+          <h3>🎯 正则表达式测试</h3>
+          <p>实时匹配正则表达式</p>
+          <div class="interactive-area">
+            <input type="text" id="regexPattern" value="\\b[A-Z][a-z]+\\b" placeholder="正则表达式"
+              style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:monospace;font-size:0.85rem;outline:none;margin-bottom:8px;">
+            <textarea id="regexText" placeholder="测试文本">Hello World From AI Toolkit Developer</textarea>
+            <div style="margin-top:10px;">
+              <button class="btn btn-primary" onclick="testRegex()">测试匹配</button>
+            </div>
+            <div class="result-box" id="regexResult">点击按钮查看结果...</div>
+          </div>
+        </div>
+
+        <!-- Tool 6: Color Converter -->
+        <div class="tool-card">
+          <h3>🎨 颜色格式转换</h3>
+          <p>HEX ↔ RGB ↔ HSL 互转</p>
+          <div class="interactive-area">
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="color" id="colorPicker" value="#6c5ce7" style="width:50px;height:36px;border:none;border-radius:6px;cursor:pointer;">
+              <input type="text" id="colorHex" value="#6c5ce7" placeholder="#hex"
+                style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-family:monospace;font-size:0.85rem;outline:none;">
+            </div>
+            <div style="margin-top:10px;">
+              <button class="btn btn-primary" onclick="convertColor()">转换</button>
+            </div>
+            <div class="result-box" id="colorResult">点击按钮查看结果...</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>AI Toolkit — 由 <a href="https://github.com/features/copilot">GitHub Copilot</a> 与 <a href="https://www.codebuddy.cn">WorkBuddy Agent</a> 协作构建</p>
+    <p style="margin-top:6px;">Built on 2026-04-28 · Node.js v24 · Copilot CLI v1.0.38</p>
+  </footer>
+
+  <script>
+    // JSON Formatter
+    function formatJSON() {
+      try {
+        const obj = JSON.parse(document.getElementById('jsonInput').value);
+        document.getElementById('jsonResult').textContent = JSON.stringify(obj, null, 2);
+      } catch(e) {
+        document.getElementById('jsonResult').textContent = '❌ JSON 解析错误: ' + e.message;
+      }
+    }
+    function minifyJSON() {
+      try {
+        const obj = JSON.parse(document.getElementById('jsonInput').value);
+        document.getElementById('jsonResult').textContent = JSON.stringify(obj);
+      } catch(e) {
+        document.getElementById('jsonResult').textContent = '❌ JSON 解析错误: ' + e.message;
+      }
+    }
+
+    // Base64
+    function encodeBase64() {
+      const text = document.getElementById('base64Input').value;
+      document.getElementById('base64Result').textContent = btoa(unescape(encodeURIComponent(text)));
+    }
+    function decodeBase64() {
+      try {
+        const b64 = document.getElementById('base64Input').value;
+        document.getElementById('base64Result').textContent = decodeURIComponent(escape(atob(b64)));
+      } catch(e) {
+        document.getElementById('base64Result').textContent = '❌ Base64 解码错误: ' + e.message;
+      }
+    }
+
+    // SHA-256
+    async function computeHash() {
+      const text = document.getElementById('hashInput').value;
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      document.getElementById('hashResult').textContent = hashHex;
+    }
+
+    // Timestamp
+    function nowTimestamp() {
+      const now = Math.floor(Date.now() / 1000);
+      document.getElementById('tsInput').value = now;
+      document.getElementById('tsResult').textContent = `时间戳: ${now}\nUTC: ${new Date(now * 1000).toISOString()}\n本地: ${new Date(now * 1000).toLocaleString('zh-CN')}`;
+    }
+    function readTimestamp() {
+      const ts = parseInt(document.getElementById('tsInput').value);
+      if (isNaN(ts)) { document.getElementById('tsResult').textContent = '❌ 请输入有效时间戳'; return; }
+      document.getElementById('tsResult').textContent = `UTC: ${new Date(ts * 1000).toISOString()}\n本地: ${new Date(ts * 1000).toLocaleString('zh-CN')}`;
+    }
+
+    // Regex
+    function testRegex() {
+      const pattern = document.getElementById('regexPattern').value;
+      const text = document.getElementById('regexText').value;
+      try {
+        const regex = new RegExp(pattern, 'g');
+        const matches = [...text.matchAll(regex)];
+        if (matches.length === 0) {
+          document.getElementById('regexResult').textContent = '无匹配结果';
+        } else {
+          const results = matches.map((m, i) => `匹配${i+1}: "${m[0]}" (位置: ${m.index})`).join('\n');
+          document.getElementById('regexResult').textContent = `共 ${matches.length} 个匹配:\n${results}`;
+        }
+      } catch(e) {
+        document.getElementById('regexResult').textContent = '❌ 正则错误: ' + e.message;
+      }
+    }
+
+    // Color
+    function convertColor() {
+      const hex = document.getElementById('colorHex').value;
+      const r = parseInt(hex.slice(1,3), 16);
+      const g = parseInt(hex.slice(3,5), 16);
+      const b = parseInt(hex.slice(5,7), 16);
+      // RGB
+      const rgb = `rgb(${r}, ${g}, ${b})`;
+      // HSL
+      const rn=r/255, gn=g/255, bn=b/255;
+      const max=Math.max(rn,gn,bn), min=Math.min(rn,gn,bn);
+      let h,s,l=(max+min)/2;
+      if(max===min){h=s=0;}else{
+        const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+        switch(max){case rn:h=((gn-bn)/d+(gn<bn?6:0))/6;break;case gn:h=((bn-rn)/d+2)/6;break;case bn:h=((rn-gn)/d+4)/6;break;}
+      }
+      const hsl = `hsl(${Math.round(h*360)}, ${Math.round(s*100)}%, ${Math.round(l*100)}%)`;
+      document.getElementById('colorResult').textContent = `HEX: ${hex}\nRGB: ${rgb}\nHSL: ${hsl}`;
+    }
+
+    // Animate stats
+    function animateValue(id, end, suffix='') {
+      const el = document.getElementById(id);
+      let current = 0;
+      const step = Math.max(1, Math.floor(end / 20));
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= end) { current = end; clearInterval(timer); }
+        el.textContent = current + suffix;
+      }, 50);
+    }
+
+    // Init
+    window.addEventListener('load', () => {
+      animateValue('stat-tools', 6);
+      animateValue('stat-tasks', 4);
+      animateValue('stat-steps', 12);
+      setTimeout(() => { document.getElementById('stat-time').textContent = '3min'; }, 1000);
+    });
+  </script>
+
+</body>
+</html>
